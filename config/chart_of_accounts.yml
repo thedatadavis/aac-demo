@@ -1,0 +1,32 @@
+# config/chart_of_accounts.yml
+# Defines the GL accounts (dim_account)
+# This is declarative and version-controlled.
+---
+accounts:
+  - number: 1010
+    name: Cash - Operating
+    type: Asset
+  - number: 1200
+    name: Accounts Receivable
+    type: Asset
+  - number: 1250
+    name: Unbilled AR (Contract Asset) # For usage recognized before billing
+    type: Asset
+  - number: 1700
+    name: Prepaid Expenses
+    type: Asset
+  - number: 2200
+    name: Deferred Revenue - Current # The liability for prepaid credits
+    type: Liability
+  - number: 4000
+    name: Revenue - Product Analytics
+    type: Revenue
+  - number: 4010
+    name: Revenue - Session Replay
+    type: Revenue
+  - number: 4020
+    name: Revenue - Feature Flags
+    type: Revenue
+  - number: 7000
+    name: Cloud Infrastructure - AWS
+    type: COGS
