@@ -1,0 +1,36 @@
+# config/je_templates.yml
+# Defines the structure for all automated journal entries.
+---
+templates:
+  # [span_0](start_span)This template is used for standard PAYG usage-based revenue[span_0](end_span)
+  - name: recognize_usage_revenue
+    memo: "To recognize {{ product.name }} usage for {{ period.month_name }}"
+    lines:
+      - account_number: 1250 # Unbilled-AR (Contract Asset)
+        debit: "{{ amount }}"
+        credit: 0
+      - account_number: "{{ product.revenue_account_number }}"
+        debit: 0
+        credit: "{{ amount }}"
+
+  # [span_1](start_span)This template handles drawing down a prepaid credit[span_1](end_span)
+  - name: recognize_prepaid_drawdown
+    memo: "Drawdown from {{ customer.name }} prepaid wallet for {{ period.month_name }}"
+    lines:
+      - account_number: 2200 # Deferred Revenue
+        debit: "{{ amount }}"
+        credit: 0
+      - account_number: "{{ product.revenue_account_number }}"
+        debit: 0
+        credit: "{{ amount }}"
+
+  # This template handles the initial cash payment for a prepaid contract
+  - name: record_prepaid_invoice
+    memo: "To record annual prepaid invoice {{ invoice.id }} for {{ customer.name }}"
+    lines:
+      - account_number: 1200 # Accounts Receivable
+        debit: "{{ invoice.total_amount }}"
+        credit: 0
+      - account_number: 2200 # Deferred Revenue
+        debit: 0
+        credit: "{{ invoice.total_amount }}"
