@@ -1,0 +1,21 @@
+# mappings/stripe_to_product.yml
+# Maps external billing plan IDs to internal, consistent product dimensions.
+---
+stripe_price_id_map:
+  # Product Analytics (PAYG)
+  price_abc123:
+    product_id: P-ANALYTICS
+    product_name: Product Analytics
+    revenue_account_number: 4000
+  
+  # Session Replay (PAYG)
+  price_def456:
+    product_id: P-REPLAY
+    product_name: Session Replay
+    revenue_account_number: 4010
+
+  # Enterprise Prepaid Credit (1M events)
+  price_ent789:
+    product_id: P-CREDIT-1M
+    product_name: Prepaid Credit Wallet
+    deferred_revenue_account_number: 2200
