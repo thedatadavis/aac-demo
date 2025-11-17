@@ -1,0 +1,47 @@
+# rules/revenue_recognition.yml
+# This is the "code" in "Accounting as Code"
+# It defines how to monetize usage events based on contract rules.
+---
+recognition_models:
+  # Model for standard PAYG customers
+  - name: pay_as_you_go
+    priority: 100
+    # This model applies if the contract has no prepaid credits
+    filter: "contract.prepaid_credits_total = 0"
+    
+    # Define how to monetize a single usage event
+    monetize_event:
+      # Example: 100 events * $0.0005/event = $0.05
+      recognized_revenue: "usage.units * contract.price_per_unit"
+      
+    # Define which journal entry to create
+    journal_entry_template: "recognize_usage_revenue"
+
+  # Model for customers with prepaid wallets
+  - name: prepaid_with_overage
+    priority: 10
+    # This model applies if the contract has a prepaid balance
+    filter: "contract.prepaid_credits_total > 0"
+    
+    monetize_event:
+      # Logic: Use the wallet first, then bill for overage
+      units_on_wallet: "min(usage.units, contract.remaining_credits)"
+      units_in_overage: "max(0, usage.units - contract.remaining_credits)"
+      
+      # Monetize each part
+      recognized_revenue_from_wallet: "units_on_wallet * contract.price_per_unit"
+      recognized_revenue_from_overage: "units_in_overage * contract.overage_price_per_unit"
+      
+      recognized_revenue: "recognized_revenue_from_wallet + recognized_revenue_from_overage"
+      
+    # This rule generates *two* different journal entries if needed
+    journal_entry_templates:
+      - name: recognize_prepaid_drawdown
+        # Only run if wallet was used
+        filter: "recognized_revenue_from_wallet > 0"
+        amount: "{{ recognized_revenue_from_wallet }}"
+        
+      - name: recognize_usage_revenue
+        # Only run if overage was hit
+        filter: "recognized_revenue_from_overage > 0"
+        amount: "{{ recognized_revenue_from_overage }}"
